@@ -7,10 +7,8 @@ RUN go mod download
 
 COPY . .
 
-ENV AIR_FLAGS=-buildvcs=false
+# ENV AIR_FLAGS=-buildvcs=false
 ENV GOFLAGS=-buildvcs=false
-RUN curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
+RUN go install github.com/cosmtrek/air@latest
 
-
-# CMD ["go", "run", "main.go"]
 CMD ["air"]
