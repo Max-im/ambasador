@@ -9,7 +9,9 @@ import (
 )
 
 func main() {
-	database.Connect()
+	if err := database.Connect(); err != nil {
+		log.Fatalf("failed to connect to the database: %v", err)
+	}
 
 	// Initialize a new Fiber app
 	app := fiber.New()

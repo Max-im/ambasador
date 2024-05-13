@@ -1,5 +1,8 @@
-#go #docker #docker-compose #gorm #fiber #postgres
+## Stack
+#docker #docker-compose #go #fiber #gorm #postgres #adminer
 
+
+## Using
 up and running:
 
 `sudo docker-compose up --build`

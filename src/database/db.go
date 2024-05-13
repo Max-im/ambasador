@@ -8,12 +8,20 @@ import (
 	"gorm.io/gorm"
 )
 
-func Connect() {
-	dsn := "host=db user=postgres password=postgres dbname=shop port=5432 sslmode=disable TimeZone=Asia/Shanghai"
-	DB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+var DB *gorm.DB
 
+func Connect() error {
+	dsn := "host=db user=postgres password=postgres dbname=shop port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+	var err error
+	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("failed to connect database:", err)
+		log.Fatalf("failed to connect to the database: %v", err)
+		return err
 	}
-	DB.AutoMigrate(models.User{})
+	// Auto migrate your model structs
+	if err := DB.AutoMigrate(&models.User{}); err != nil {
+		log.Fatalf("failed to auto migrate models: %v", err)
+		return err
+	}
+	return nil
 }
