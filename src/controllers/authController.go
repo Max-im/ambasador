@@ -55,3 +55,46 @@ func Register(c fiber.Ctx) error {
 
 	return c.JSON(user)
 }
+
+type LoginRequestData struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+func Login(c fiber.Ctx) error {
+
+	var data LoginRequestData
+	err := json.Unmarshal(c.Body(), &data)
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid request body format",
+			"error":   err.Error(),
+		})
+	}
+
+	if data.Email == "" || data.Password == "" {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"message": "Missing required fields: 'email' or 'password'",
+		})
+	}
+
+	// password, _ := bcrypt.GenerateFromPassword([]byte(data.Password), 12)
+
+	var user models.User
+
+	database.DB.Where("email = ?", data.Email).First(&user)
+
+	if user.ID == 0 {
+		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
+			"message": "Invalid credentials",
+		})
+	}
+
+	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(data.Password)); err != nil {
+		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
+			"message": "Invalid credentials",
+		})
+	}
+
+	return c.JSON(user)
+}
