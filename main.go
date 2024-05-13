@@ -6,6 +6,7 @@ import (
 	"shop/src/routes"
 
 	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/cors"
 )
 
 func main() {
@@ -15,6 +16,13 @@ func main() {
 
 	// Initialize a new Fiber app
 	app := fiber.New()
+
+	// Cors
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     "http://localhost:3000",
+		AllowCredentials: true,
+	}))
+	// app.Use(cors.New())
 
 	// Routes
 	routes.Setup(app)

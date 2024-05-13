@@ -5,10 +5,14 @@ import (
 	"net/http"
 	"shop/src/database"
 	"shop/src/models"
+	"time"
 
 	"github.com/gofiber/fiber/v3"
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
+
+var SECRET_OR_KEY = "your_secret_key"
 
 type RegisterRequestData struct {
 	Email           string `json:"email"`
@@ -16,6 +20,16 @@ type RegisterRequestData struct {
 	PasswordConfirm string `json:"password_confirm"`
 	FirstName       string `json:"first_name"`
 	LastName        string `json:"last_name"`
+}
+
+type LoginRequestData struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type CustomClaims struct {
+	UserID string `json:"user_id"`
+	jwt.RegisteredClaims
 }
 
 func Register(c fiber.Ctx) error {
@@ -56,11 +70,6 @@ func Register(c fiber.Ctx) error {
 	return c.JSON(user)
 }
 
-type LoginRequestData struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
 func Login(c fiber.Ctx) error {
 
 	var data LoginRequestData
@@ -78,8 +87,6 @@ func Login(c fiber.Ctx) error {
 		})
 	}
 
-	// password, _ := bcrypt.GenerateFromPassword([]byte(data.Password), 12)
-
 	var user models.User
 
 	database.DB.Where("email = ?", data.Email).First(&user)
@@ -96,5 +103,31 @@ func Login(c fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(user)
+	claims := &CustomClaims{
+		string(user.ID),
+		jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString([]byte(SECRET_OR_KEY))
+	if err != nil {
+		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
+			"message": "Invalid credentials",
+		})
+	}
+
+	cookie := fiber.Cookie{
+		Name:     "jwt",
+		Value:    tokenString,
+		Expires:  time.Now().Add(24 * time.Hour),
+		HTTPOnly: true,
+	}
+
+	c.Cookie(&cookie)
+
+	return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
+		"message": "Success",
+		"user":    user,
+	})
 }
