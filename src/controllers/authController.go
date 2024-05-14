@@ -67,11 +67,16 @@ func Register(c fiber.Ctx) error {
 
 	database.DB.Create(&user)
 
+	if user.ID == 0 {
+		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
+			"message": "User already exists",
+		})
+	}
+
 	return c.JSON(user)
 }
 
 func Login(c fiber.Ctx) error {
-
 	var data LoginRequestData
 	err := json.Unmarshal(c.Body(), &data)
 	if err != nil {
