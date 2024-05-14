@@ -9,7 +9,6 @@ import (
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/golang-jwt/jwt/v5"
-	"golang.org/x/crypto/bcrypt"
 )
 
 var SECRET_OR_KEY = "your_secret_key"
@@ -55,15 +54,14 @@ func Register(c fiber.Ctx) error {
 		})
 	}
 
-	password, _ := bcrypt.GenerateFromPassword([]byte(data.Password), 12)
-
 	user := models.User{
 		Email:        data.Email,
 		FirstName:    data.FirstName,
 		LastName:     data.LastName,
-		Password:     password,
 		IsAmbassador: false,
 	}
+
+	user.SetPassword(data.Password)
 
 	database.DB.Create(&user)
 
@@ -97,7 +95,7 @@ func Login(c fiber.Ctx) error {
 		})
 	}
 
-	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(data.Password)); err != nil {
+	if err := user.ComparePassword(data.Password); err != nil {
 		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Invalid credentials",
 		})
@@ -126,7 +124,7 @@ func Login(c fiber.Ctx) error {
 
 	c.Cookie(&cookie)
 
-	return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
+	return c.JSON(fiber.Map{
 		"message": "Success",
 		"user":    user,
 	})
