@@ -7,6 +7,7 @@ import (
 	"shop/src/database"
 	"shop/src/middlewares"
 	"shop/src/models"
+	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v3"
@@ -24,6 +25,16 @@ type RegisterRequestData struct {
 type LoginRequestData struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type UpdateRequestData struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+}
+
+type UpdatePassRequestData struct {
+	Password        string `json:"password"`
+	PasswordConfirm string `json:"password_confirm"`
 }
 
 type CustomClaims struct {
@@ -163,4 +174,81 @@ func Logout(c fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"message": "Success",
 	})
+}
+
+func UpdateInfo(c fiber.Ctx) error {
+	var data UpdateRequestData
+	err := json.Unmarshal(c.Body(), &data)
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid request body format",
+			"error":   err.Error(),
+		})
+	}
+
+	if data.FirstName == "" || data.LastName == "" {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"message": "Missing required fields: 'first_name' or 'last_name'",
+		})
+	}
+
+	UserID, _ := middlewares.GetUserId(c)
+
+	parsedUserID, err := strconv.ParseUint(UserID, 10, 64)
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid user ID format",
+			"error":   err.Error(),
+		})
+	}
+
+	var currentUser models.User
+
+	database.DB.Where("id = ?", UserID).First(&currentUser)
+
+	user := models.User{
+		ID:        uint(parsedUserID),
+		FirstName: data.FirstName,
+		LastName:  data.LastName,
+		Email:     currentUser.Email,
+	}
+
+	database.DB.Model(&user).Updates(&user)
+
+	return c.JSON(user)
+}
+
+func UpdatePassword(c fiber.Ctx) error {
+	var data UpdatePassRequestData
+	err := json.Unmarshal(c.Body(), &data)
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid request body format",
+			"error":   err.Error(),
+		})
+	}
+
+	if data.Password == "" || data.PasswordConfirm == "" {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"message": "Missing required fields: 'Password' or 'PasswordConfirm'",
+		})
+	}
+
+	if data.Password != data.PasswordConfirm {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"message": "Passwords dont match",
+		})
+	}
+
+	UserID, _ := middlewares.GetUserId(c)
+
+	var user models.User
+
+	database.DB.Where("id = ?", UserID).First(&user)
+
+	user.SetPassword(data.Password)
+
+	database.DB.Save(&user)
+
+	return c.JSON(user)
 }
