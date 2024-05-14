@@ -5,15 +5,13 @@ import (
 	"fmt"
 	"net/http"
 	"shop/src/database"
+	"shop/src/middlewares"
 	"shop/src/models"
-	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/golang-jwt/jwt/v5"
 )
-
-var SECRET_OR_KEY = "your_secret_key"
 
 type RegisterRequestData struct {
 	Email           string `json:"email"`
@@ -115,7 +113,7 @@ func Login(c fiber.Ctx) error {
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(SECRET_OR_KEY))
+	tokenString, err := token.SignedString([]byte("your_secret_key"))
 	if err != nil {
 		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Invalid credentials",
@@ -138,30 +136,11 @@ func Login(c fiber.Ctx) error {
 }
 
 func User(c fiber.Ctx) error {
-	cookie := c.Cookies("jwt")
-
-	token, err := jwt.ParseWithClaims(cookie, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(SECRET_OR_KEY), nil
-	})
-
-	if err != nil || !token.Valid {
-		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
-			"message": "Unauthorized",
-		})
-	}
-
-	claims := token.Claims.(*CustomClaims)
-
-	userID, err := strconv.ParseUint(claims.UserID, 10, 32)
-	if err != nil {
-		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
-			"message": "Invalid token claims",
-		})
-	}
+	UserID, _ := middlewares.GetUserId(c)
 
 	var user models.User
 
-	database.DB.Where("id = ?", userID).First(&user)
+	database.DB.Where("id = ?", UserID).First(&user)
 	if user.ID == 0 {
 		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Invalid credentials",
