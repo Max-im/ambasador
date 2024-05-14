@@ -10,4 +10,5 @@ up and running:
 
 seed db
  - `sudo docker-compose exec app sh`
- - `go run src/commands/populateUsers.go`
+ - `go run src/commands/populateUsers.go
+ - `go run src/commands/populateProducts.go`

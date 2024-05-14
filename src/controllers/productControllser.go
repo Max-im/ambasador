@@ -49,9 +49,8 @@ func GetProduct(c fiber.Ctx) error {
 
 func UpdateProduct(c fiber.Ctx) error {
 	id, _ := strconv.Atoi(c.Params("id"))
-	product := models.Product{
-		ID: uint(id),
-	}
+	product := models.Product{}
+	product.ID = uint(id)
 
 	err := json.Unmarshal(c.Body(), &product)
 	if err != nil {

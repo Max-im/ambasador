@@ -207,11 +207,11 @@ func UpdateInfo(c fiber.Ctx) error {
 	database.DB.Where("id = ?", UserID).First(&currentUser)
 
 	user := models.User{
-		ID:        uint(parsedUserID),
 		FirstName: data.FirstName,
 		LastName:  data.LastName,
 		Email:     currentUser.Email,
 	}
+	user.ID = uint(parsedUserID)
 
 	database.DB.Model(&user).Updates(&user)
 
