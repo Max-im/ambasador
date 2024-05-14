@@ -19,9 +19,13 @@ func Connect() error {
 		return err
 	}
 	// Auto migrate your model structs
-	if err := DB.AutoMigrate(&models.User{}); err != nil {
-		log.Fatalf("failed to auto migrate models: %v", err)
-		return err
-	}
+	AutoMigrate()
 	return nil
+}
+
+func AutoMigrate() {
+	DB.AutoMigrate(
+		&models.User{},
+		&models.Product{},
+	)
 }
