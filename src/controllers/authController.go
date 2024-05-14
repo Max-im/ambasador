@@ -2,9 +2,11 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"shop/src/database"
 	"shop/src/models"
+	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v3"
@@ -27,7 +29,7 @@ type LoginRequestData struct {
 }
 
 type CustomClaims struct {
-	UserID string `json:"user_id"`
+	UserID string `json:"id"`
 	jwt.RegisteredClaims
 }
 
@@ -102,8 +104,8 @@ func Login(c fiber.Ctx) error {
 	}
 
 	claims := &CustomClaims{
-		string(user.ID),
-		jwt.RegisteredClaims{
+		UserID: fmt.Sprintf("%d", user.ID),
+		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 		},
 	}
@@ -128,4 +130,38 @@ func Login(c fiber.Ctx) error {
 		"message": "Success",
 		"user":    user,
 	})
+}
+
+func User(c fiber.Ctx) error {
+	cookie := c.Cookies("jwt")
+
+	token, err := jwt.ParseWithClaims(cookie, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(SECRET_OR_KEY), nil
+	})
+
+	if err != nil || !token.Valid {
+		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
+			"message": "Unauthorized",
+		})
+	}
+
+	claims := token.Claims.(*CustomClaims)
+
+	userID, err := strconv.ParseUint(claims.UserID, 10, 32)
+	if err != nil {
+		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
+			"message": "Invalid token claims",
+		})
+	}
+
+	var user models.User
+
+	database.DB.Where("id = ?", userID).First(&user)
+	if user.ID == 0 {
+		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
+			"message": "Invalid credentials",
+		})
+	}
+
+	return c.JSON(user)
 }
