@@ -2,16 +2,15 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"shop/src/database"
 	"shop/src/middlewares"
 	"shop/src/models"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 type RegisterRequestData struct {
@@ -35,11 +34,6 @@ type UpdateRequestData struct {
 type UpdatePassRequestData struct {
 	Password        string `json:"password"`
 	PasswordConfirm string `json:"password_confirm"`
-}
-
-type CustomClaims struct {
-	UserID string `json:"id"`
-	jwt.RegisteredClaims
 }
 
 func Register(c fiber.Ctx) error {
@@ -69,7 +63,7 @@ func Register(c fiber.Ctx) error {
 		Email:        data.Email,
 		FirstName:    data.FirstName,
 		LastName:     data.LastName,
-		IsAmbassador: false,
+		IsAmbassador: strings.Contains(c.OriginalURL(), "/api/ambassador"),
 	}
 
 	user.SetPassword(data.Password)
@@ -117,14 +111,22 @@ func Login(c fiber.Ctx) error {
 		})
 	}
 
-	claims := &CustomClaims{
-		UserID: fmt.Sprintf("%d", user.ID),
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
-		},
+	isAmbassador := strings.Contains(c.OriginalURL(), "/api/ambassador")
+	var scope string
+
+	if isAmbassador {
+		scope = "ambassador"
+	} else {
+		scope = "admin"
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte("your_secret_key"))
+
+	if !isAmbassador && user.IsAmbassador {
+		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
+			"message": "Unauthorized",
+		})
+	}
+
+	tokenString, err := middlewares.GenerateJWT(user.ID, scope)
 	if err != nil {
 		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Invalid credentials",
