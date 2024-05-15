@@ -14,6 +14,8 @@ func main() {
 		log.Fatalf("failed to connect to the database: %v", err)
 	}
 
+	database.SetupRedis()
+
 	// Initialize a new Fiber app
 	app := fiber.New()
 

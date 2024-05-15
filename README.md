@@ -1,5 +1,5 @@
 ## Stack
-#docker #docker-compose #go #fiber #gorm #postgres #adminer
+#docker #docker-compose #go #fiber #gorm #postgres #adminer #redis
 
 
 ## Using
