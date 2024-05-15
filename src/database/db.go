@@ -19,11 +19,6 @@ func Connect() error {
 		return err
 	}
 	// Auto migrate your model structs
-	AutoMigrate()
-	return nil
-}
-
-func AutoMigrate() {
 	DB.AutoMigrate(
 		&models.User{},
 		&models.Product{},
@@ -31,4 +26,5 @@ func AutoMigrate() {
 		&models.Order{},
 		&models.OrderItem{},
 	)
+	return nil
 }

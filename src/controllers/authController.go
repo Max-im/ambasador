@@ -160,6 +160,12 @@ func User(c fiber.Ctx) error {
 		})
 	}
 
+	if strings.Contains(c.OriginalURL(), "/api/ambassador") {
+		ambasador := models.Ambassador(user)
+		ambasador.CalculateRevenue(database.DB)
+		return c.JSON(ambasador)
+	}
+
 	return c.JSON(user)
 }
 
