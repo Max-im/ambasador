@@ -7,6 +7,7 @@ import (
 	"shop/src/database"
 	"shop/src/models"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v3"
@@ -88,6 +89,37 @@ func ProductsFrontend(c fiber.Ctx) error {
 		database.Cache.Set(ctx, "products_frontend", bytes, 30*time.Minute)
 	} else {
 		json.Unmarshal([]byte(result), &products)
+	}
+
+	return c.JSON(products)
+}
+
+func ProductsBackend(c fiber.Ctx) error {
+	var products []models.Product
+
+	ctx := context.Background()
+
+	result, err := database.Cache.Get(ctx, "products_backend").Result()
+
+	if err != nil {
+		database.DB.Find(&products)
+		bytes, _ := json.Marshal(products)
+
+		database.Cache.Set(ctx, "products_backend", bytes, 30*time.Minute)
+	} else {
+		json.Unmarshal([]byte(result), &products)
+	}
+
+	var seachResults []models.Product
+
+	if s := c.Query("s"); s != "" {
+		for _, product := range products {
+			if strings.Contains(strings.ToLower(product.Title), strings.ToLower(s)) ||
+				strings.Contains(strings.ToLower(product.Description), strings.ToLower(s)) {
+				seachResults = append(seachResults, product)
+			}
+		}
+		products = seachResults
 	}
 
 	return c.JSON(products)

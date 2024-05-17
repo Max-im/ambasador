@@ -20,6 +20,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=shop
+    volumes:
+      - pgdata:/var/lib/postgresql/data
   
   adminer:
     image: adminer
@@ -31,3 +33,6 @@ services:
     image: redis
     ports:
       - 6378:6379
+
+volumes:
+  pgdata:
