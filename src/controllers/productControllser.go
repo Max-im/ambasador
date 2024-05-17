@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"shop/src/database"
 	"shop/src/models"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -120,6 +121,19 @@ func ProductsBackend(c fiber.Ctx) error {
 			}
 		}
 		products = seachResults
+	}
+
+	if sortParam := c.Query("sort"); sortParam != "" {
+		sortLower := strings.ToLower(sortParam)
+		if sortLower == "asc" {
+			sort.Slice(products, func(i, j int) bool {
+				return products[i].Price < products[j].Price
+			})
+		} else if sortLower == "desc" {
+			sort.Slice(products, func(i, j int) bool {
+				return products[i].Price > products[j].Price
+			})
+		}
 	}
 
 	return c.JSON(products)
