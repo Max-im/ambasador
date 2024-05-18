@@ -48,7 +48,15 @@ func CreateOrder(c fiber.Ctx) error {
 		Code: data.Code,
 	}
 
-	database.DB.Preload("User").First(&link)
+	tx := database.DB.Begin()
+
+	if err := tx.Preload("User").First(&link).Error; err != nil {
+		tx.Rollback()
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
+
 	if link.ID == 0 {
 		return c.Status(http.StatusNotFound).JSON(fiber.Map{
 			"message": "Link not found",
@@ -84,8 +92,16 @@ func CreateOrder(c fiber.Ctx) error {
 			AmbassadorRevenue: 0.1 * total,
 			AdminRevenue:      0.9 * total,
 		}
-		database.DB.Create(&item)
+
+		if err := tx.Create(&item).Error; err != nil {
+			tx.Rollback()
+			return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+				"message": err.Error(),
+			})
+		}
 	}
+
+	tx.Commit()
 
 	return c.JSON(order)
 }
