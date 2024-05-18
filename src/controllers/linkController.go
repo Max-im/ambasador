@@ -1,10 +1,14 @@
 package controllers
 
 import (
+	"encoding/json"
+	"net/http"
 	"shop/src/database"
+	"shop/src/middlewares"
 	"shop/src/models"
 	"strconv"
 
+	"github.com/go-faker/faker/v4"
 	"github.com/gofiber/fiber/v3"
 )
 
@@ -21,4 +25,37 @@ func Links(c fiber.Ctx) error {
 	}
 
 	return c.JSON(links)
+}
+
+type LinkRequestData struct {
+	Products []int `json:"product"`
+}
+
+func CreateLink(c fiber.Ctx) error {
+	var request LinkRequestData
+	err := json.Unmarshal(c.Body(), &request)
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid request body format",
+			"error":   err.Error(),
+		})
+	}
+
+	id, _ := middlewares.GetUserId(c)
+	userId, _ := strconv.ParseUint(id, 10, 32)
+
+	link := models.Link{
+		Code:   faker.Username(),
+		UserId: uint(userId),
+	}
+
+	for _, productId := range request.Products {
+		product := models.Product{}
+		product.ID = uint(productId)
+		link.Products = append(link.Products, product)
+	}
+
+	database.DB.Create(&link)
+
+	return c.JSON(link)
 }
