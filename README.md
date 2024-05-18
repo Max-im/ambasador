@@ -17,3 +17,4 @@ seed db
  - `go run src/commands/populateUsers.go`
  - `go run src/commands/populateProducts.go`
  - `go run src/commands/populateOrders.go`
+ - `go run src/commands/updateRanking.go`
