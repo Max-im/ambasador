@@ -6,6 +6,10 @@
 #docker #docker-compose #go #fiber #gorm #postgres #adminer #redis #stripe
 
 
+## Pre Requirenments
+- make sure you have golang installed on your mashine `go version`
+- run mailHog to be able to send emails `~/go/bin/MailHog`
+
 ## Using
 up and running:
 
@@ -18,3 +22,6 @@ seed db
  - `go run src/commands/populateProducts.go`
  - `go run src/commands/populateOrders.go`
  - `go run src/commands/updateRanking.go`
+
+
+ 

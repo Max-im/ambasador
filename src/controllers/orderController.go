@@ -3,7 +3,9 @@ package controllers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"net/smtp"
 	"shop/src/database"
 	"shop/src/models"
 
@@ -188,6 +190,13 @@ func PlaceOrder(c fiber.Ctx) error {
 		database.DB.First(&user)
 
 		database.Cache.ZIncrBy(context.Background(), "ambassadors_ranking", ambassadorRevenue, user.Name())
+
+		ambassadorMessage := []byte(fmt.Sprintf("You have earned $%f revenue from the link #%s", ambassadorRevenue, order.Code))
+		smtp.SendMail("host.docker.internal:1025", nil, "no-reply@ambassador.com", []string{order.AmbassadorEmail}, ambassadorMessage)
+
+		adminMessage := []byte(fmt.Sprintf("Order #%d with a total of $%f has been completed", order.ID, adminRevenue))
+		smtp.SendMail("host.docker.internal:1025", nil, "no-reply@ambassador.com", []string{"admin@localhost.com"}, adminMessage)
+
 	}(order)
 
 	return c.JSON(fiber.Map{
