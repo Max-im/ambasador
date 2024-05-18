@@ -15,6 +15,7 @@ func main() {
 	}
 
 	database.SetupRedis()
+	database.SetupCacheChannel()
 
 	// Initialize a new Fiber app
 	app := fiber.New()
