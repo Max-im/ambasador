@@ -15,6 +15,10 @@ type User struct {
 	Revenue      *float64 `json:"revenue,omitempty" gorm:"-"`
 }
 
+func (user *User) Name() string {
+	return user.FirstName + " " + user.LastName
+}
+
 func (user *User) SetPassword(password string) {
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), 12)
 	user.Password = hashedPassword

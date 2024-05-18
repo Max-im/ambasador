@@ -1,3 +1,7 @@
+# Ambassador marketplace
+
+| A Marketplace service example for selling products 
+
 ## Stack
 #docker #docker-compose #go #fiber #gorm #postgres #adminer #redis
 
