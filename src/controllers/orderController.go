@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"shop/src/database"
@@ -142,4 +143,54 @@ func CreateOrder(c fiber.Ctx) error {
 	tx.Commit()
 
 	return c.JSON(source)
+}
+
+type PlaceOrderData struct {
+	Source string `json:"source"`
+}
+
+func PlaceOrder(c fiber.Ctx) error {
+	var data PlaceOrderData
+	err := json.Unmarshal(c.Body(), &data)
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid request body format",
+			"error":   err.Error(),
+		})
+	}
+
+	order := models.Order{}
+	database.DB.Preload("OrderItems").First(&order, models.Order{
+		TransactionId: data.Source,
+	})
+
+	if order.ID == 0 {
+		return c.Status(http.StatusNotFound).JSON(fiber.Map{
+			"message": "Order not found",
+		})
+	}
+
+	order.Completed = true
+	database.DB.Save(&order)
+
+	go func(order models.Order) {
+		ambassadorRevenue := 0.0
+		adminRevenue := 0.0
+
+		for _, orderItem := range order.OrderItems {
+			ambassadorRevenue += orderItem.AmbassadorRevenue
+			adminRevenue += orderItem.AdminRevenue
+		}
+
+		user := models.User{}
+		user.ID = order.UserId
+
+		database.DB.First(&user)
+
+		database.Cache.ZIncrBy(context.Background(), "ambassadors_ranking", ambassadorRevenue, user.Name())
+	}(order)
+
+	return c.JSON(fiber.Map{
+		"message": "Success",
+	})
 }
