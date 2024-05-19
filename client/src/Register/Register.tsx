@@ -22,7 +22,7 @@ export default function Register() {
   const [registerData, setRegisterData] = useState<IRegisterData>({email: '', password: '', first_name: '', last_name: '', password_confirm: ''});
 
   const handleClick = () => {
-    axios.post('http://localhost:5000/register', registerData).then(() => navigate('/login'));
+    axios.post('/register', registerData).then(() => navigate('/login'));
   };
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {

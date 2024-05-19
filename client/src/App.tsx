@@ -5,6 +5,8 @@ import Header from './Header/Header';
 import Login from './Login/Login';
 import Register from './Register/Register';
 import Home from './Home/Home';
+import Account from './Account/Account';
+import Logout from './Logout/Logout';
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
           <Route path={'/'} element={<Home />} />
           <Route path={'/login'} element={<Login />} />
           <Route path={'/register'} element={<Register />} />
+          <Route path={'/account'} element={<Account />} />
+          <Route path={'/logout'} element={<Logout />} />
         </Routes>
     </Box>
       </BrowserRouter>

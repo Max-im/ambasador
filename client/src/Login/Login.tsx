@@ -20,7 +20,7 @@ export default function Login() {
   const [loginData, setLoginData] = useState<ILoginData>({email: '', password: ''});
 
   const handleClick = () => {
-    axios.post('http://localhost:5000/login', loginData).then(() => navigate('/'));
+    axios.post('/login', loginData).then(() => navigate('/'));
   };
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
