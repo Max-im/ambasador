@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -6,7 +8,6 @@ import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { Link } from 'react-router-dom';
 
 
 interface ILoginData {
@@ -14,12 +15,12 @@ interface ILoginData {
   password: string;
 }
 
-
 export default function Login() {
+  const navigate = useNavigate();
   const [loginData, setLoginData] = useState<ILoginData>({email: '', password: ''});
 
   const handleClick = () => {
-    console.log(loginData);
+    axios.post('http://localhost:5000/login', loginData).then(() => navigate('/'));
   };
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {

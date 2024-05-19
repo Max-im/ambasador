@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -5,11 +8,29 @@ import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { Link } from 'react-router-dom';
+
+interface IRegisterData {
+  email: string;
+  password: string;
+  first_name: string;
+  last_name: string;
+  password_confirm: string;
+}
 
 export default function Register() {
+  const navigate = useNavigate();
+  const [registerData, setRegisterData] = useState<IRegisterData>({email: '', password: '', first_name: '', last_name: '', password_confirm: ''});
+
   const handleClick = () => {
-    console.log('clicked');
+    axios.post('http://localhost:5000/register', registerData).then(() => navigate('/login'));
+  };
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setRegisterData(state => ({
+      ...state,
+      [name]: value,
+    }));
   };
 
   return (
