@@ -7,6 +7,7 @@ export default function Users() {
   const [page, setPage] = useState(0);
   const [perPage, setPerPage] = useState(10);
   const [users, setUsers] = useState([]);
+  
   useEffect(() => {
     axios.get('/ambassadors').then(({data}) => setUsers(data))
   }, []);
@@ -26,7 +27,7 @@ export default function Users() {
               <TableCell>{user.first_name} {user.last_name}</TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>
-                <Link to={`/users/${user.id}`}>View</Link>
+                <Link to={`/users/${user.id}/links`}>View</Link>
               </TableCell>
             </TableRow>
           ))}
