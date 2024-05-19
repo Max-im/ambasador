@@ -21,9 +21,10 @@ export default function Header() {
     }}>
       <Typography variant="h6">Header</Typography>
       <Stack direction="row" spacing={2}>
+        <Link to="/account">Profile</Link>
         <Link to="/login">Login</Link>
-        <Link to="/users">Users</Link>
         <Link to="/logout">Logout</Link>
+        <Link to="/users">Users</Link>
         <Link to="/products">Products</Link>
         <Link to="/order">Orders</Link>
       </Stack>
