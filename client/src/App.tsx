@@ -12,6 +12,7 @@ import UserLinks from './UserLinks/UserLinks';
 import Products from './Products/Products';
 import CreateProduct from './Products/CreateProduct';
 import EditProduct from './Products/EditProduct';
+import Order from './Order/Order';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path={'/products'} element={<Products />} />
           <Route path={'/product/create'} element={<CreateProduct />} />
           <Route path={'/product/:productId/edit'} element={<EditProduct />} />
+          <Route path={'/order'} element={<Order />} />
         </Routes>
     </Box>
       </BrowserRouter>

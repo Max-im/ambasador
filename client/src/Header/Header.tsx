@@ -25,6 +25,7 @@ export default function Header() {
         <Link to="/users">Users</Link>
         <Link to="/logout">Logout</Link>
         <Link to="/products">Products</Link>
+        <Link to="/order">Orders</Link>
       </Stack>
     </Box>
   )

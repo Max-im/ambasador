@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { Table, TableCell, TableContainer, TableRow } from '@mui/material';
+import { IOrder } from '../Order/Order';
 
 interface ILinkItem {
     id: number;
     code: string;
-    orders: any[]
+    orders: IOrder[]
 }
 
 export default function UserLinks() {
