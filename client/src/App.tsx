@@ -7,6 +7,7 @@ import Register from './Register/Register';
 import Home from './Home/Home';
 import Account from './Account/Account';
 import Logout from './Logout/Logout';
+import Users from './Users/Users';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path={'/register'} element={<Register />} />
           <Route path={'/account'} element={<Account />} />
           <Route path={'/logout'} element={<Logout />} />
+          <Route path={'/users'} element={<Users />} />
         </Routes>
     </Box>
       </BrowserRouter>

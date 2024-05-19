@@ -7,6 +7,7 @@ export default function Header() {
       <Link to="/login">Login</Link>
       <Link to="/users">Users</Link>
       <Link to="/logout">Logout</Link>
+      <Link to="/users">Users</Link>
     </div>
   )
 }
