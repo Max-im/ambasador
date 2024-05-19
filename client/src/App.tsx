@@ -11,6 +11,7 @@ import Users from './Users/Users';
 import UserLinks from './UserLinks/UserLinks';
 import Products from './Products/Products';
 import CreateProduct from './Products/CreateProduct';
+import EditProduct from './Products/EditProduct';
 
 function App() {
   return (
@@ -26,7 +27,8 @@ function App() {
           <Route path={'/users'} element={<Users />} />
           <Route path={'/users/:userId/links'} element={<UserLinks />} />
           <Route path={'/products'} element={<Products />} />
-          <Route path={'/create-product'} element={<CreateProduct />} />
+          <Route path={'/product/create'} element={<CreateProduct />} />
+          <Route path={'/product/:productId/edit'} element={<EditProduct />} />
         </Routes>
     </Box>
       </BrowserRouter>

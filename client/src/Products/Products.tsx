@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Box, Button, Table, TableCell, TableContainer, TableFooter, TablePagination, TableRow } from '@mui/material';
-import CreateProduct from './CreateProduct';
-import { Link } from 'react-router-dom';
+import { Box, Button, ButtonGroup, Table, TableCell, TableContainer, TableFooter, TablePagination, TableRow } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 export interface IProduct {
   id: number;
@@ -13,6 +12,7 @@ export interface IProduct {
 }
 
 export default function Products() {
+  const navigate = useNavigate();
   const [products, setProducts] = useState<IProduct[]>([]);
   const [page, setPage] = useState(0);
   const [perPage, setPerPage] = useState(10);
@@ -29,9 +29,13 @@ export default function Products() {
     }
   }
 
+  const onEdit = (productId: number) => {
+    navigate(`/product/${productId}/edit`);
+  }
+
   return (
     <Box>
-        <Button variant="contained"><Link to="/create-product">Create Product</Link></Button>
+        <Button variant="contained" onClick={() => navigate('/product/create')}>Create Product</Button>
         <TableContainer sx={{ mt: 2 }}>
         <Table>
             <TableRow>
@@ -49,7 +53,12 @@ export default function Products() {
                 <TableCell>{product.title}</TableCell>
                 <TableCell>{product.description}</TableCell>
                 <TableCell>${product.price}</TableCell>
-                <TableCell><Button color="error" size="small" variant="contained" onClick={() => onDelete(product.id)}>Delete</Button></TableCell>
+                <TableCell>
+                    <ButtonGroup>
+                        <Button color="warning" size="small" variant="contained" onClick={() => onEdit(product.id)}>Edit</Button>
+                        <Button color="error" size="small" variant="contained" onClick={() => onDelete(product.id)}>Delete</Button>
+                    </ButtonGroup>
+                </TableCell>
             </TableRow>
             ))}
             <TableFooter>
